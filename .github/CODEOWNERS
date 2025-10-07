@@ -1,0 +1,8 @@
+# CODEOWNERS
+# Replace the placeholders below with your actual GitHub usernames or teams.
+# See: https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Example ownership rules:
+# *                         @your-org/backend-team
+# /services/catalog-service/ @your-username
+# /services/order-service/   @your-username
