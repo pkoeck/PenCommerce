@@ -222,3 +222,36 @@ Notes:
 - Version alignment: since all modules share the same parent version, ${project.version} keeps everything in sync.
 - Testing: each library module should include its own unit tests. Services using the library should have integration tests covering the combined behavior.
 - Independence: never add a dependency from one service module to another service module. Only depend on shared libraries under libs/.
+
+
+
+## Using Spring Data JPA with jOOQ (per service)
+
+All microservices are pre-wired to use Spring Data JPA and jOOQ against PostgreSQL, with Flyway migrations.
+
+What’s included in each service:
+- Dependencies: spring-boot-starter-data-jpa, org.jooq:jooq, org.postgresql:postgresql (runtime), flyway-core
+- Default profile (no DB): database auto-configurations are excluded by default so tests and boot run without a database
+- Postgres profile: application-postgres.properties enables DataSource, JPA, jOOQ (dialect=POSTGRES), and Flyway
+
+How to run locally:
+1) Start infra
+   - docker compose up -d
+2) Run a service with the postgres profile (examples):
+   - Catalog:              ./mvnw -q -pl services/catalog-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+   - Order:                ./mvnw -q -pl services/order-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+   - Customer:             ./mvnw -q -pl services/customer-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+   - Inventory:            ./mvnw -q -pl services/inventory-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+   - Invoice Payment:      ./mvnw -q -pl services/invoice-payment-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+
+Connection settings (shared by all services via application-postgres.properties):
+- spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase
+- spring.datasource.username=myuser
+- spring.datasource.password=secret
+- spring.flyway.enabled=true
+- spring.jooq.sql-dialect=POSTGRES
+
+Notes:
+- Default behavior (no profile): DB auto-config is excluded to keep tests/boot fast and isolated. Use the postgres profile when you want DB access.
+- Flyway migrations live under src/main/resources/db/migration and run when the postgres profile is active.
+- Transactions are shared across JPA and jOOQ when using the same DataSource and @Transactional boundaries.
