@@ -16,3 +16,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+
+  - package-ecosystem: "maven"
+    directory: "/libs/common-lib"
+    schedule:
+      interval: "weekly"

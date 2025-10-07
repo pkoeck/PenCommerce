@@ -10,6 +10,7 @@ Project structure:
   - services/customer-service
   - services/inventory-service
   - services/invoice-payment-service
+- Shared libraries under libs/ (e.g., libs/common-lib)
 - Infra compose file: compose.yaml (PostgreSQL, Pulsar)
 
 Build instructions (Windows PowerShell):
@@ -39,3 +40,19 @@ Code style:
 
 Notes:
 - Legacy source files under the repository root are not part of the build; new code should live in services/* modules.
+
+
+## Code sharing
+- Do not create compile-time dependencies between microservice modules under services/.
+- Extract reusable, service-agnostic code into library modules under libs/ (example: libs/common-lib).
+- Typical contents: shared DTOs, validation, common error models, HTTP header constants, utility classes.
+- Avoid placing service-specific domain logic into shared libraries.
+- When a service needs shared code, add a dependency:
+
+```
+<dependency>
+  <groupId>com.pkswoodhouse</groupId>
+  <artifactId>common-lib</artifactId>
+  <version>${project.version}</version>
+</dependency>
+```

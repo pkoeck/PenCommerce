@@ -1,15 +1,17 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - 'POSTGRES_DB=mydatabase'
       - 'POSTGRES_PASSWORD=secret'
       - 'POSTGRES_USER=myuser'
     ports:
-      - '5432'
+      - '5432:5432'
   pulsar:
     image: 'apachepulsar/pulsar:latest'
     ports:
-      - '6650'
-      - '8080'
+      - '6650:6650'
+      - '8080:8080'
     command: 'bin/pulsar standalone'

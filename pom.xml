@@ -19,6 +19,7 @@
     <description>Monorepo parent for PenCommerce microservices</description>
 
     <modules>
+        <module>libs/common-lib</module>
         <module>services/catalog-service</module>
         <module>services/order-service</module>
         <module>services/customer-service</module>

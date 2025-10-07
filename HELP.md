@@ -35,13 +35,23 @@ The following guides illustrate how to use some features concretely:
 
 ### Docker Compose support
 
-This project contains a Docker Compose file named `compose.yaml`.
+This project contains a Docker Compose file named `compose.yaml` and a root-level `Dockerfile` used to build a local Postgres image for development.
 In this file, the following services have been defined:
 
-* postgres: [`postgres:latest`](https://hub.docker.com/_/postgres)
-* pulsar: [`apachepulsar/pulsar:latest`](https://hub.docker.com/r/apachepulsar/pulsar)
+* postgres: built from the local `Dockerfile` (which is based on `postgres:16-alpine`) with defaults (db `mydatabase`, user `myuser`, password `secret`), port `5432:5432` published
+* pulsar: [`apachepulsar/pulsar:latest`](https://hub.docker.com/r/apachepulsar/pulsar) with ports `6650:6650` and `8080:8080` published; command `bin/pulsar standalone`
 
 Please review the tags of the used images and set them to the same as you're running in production.
+
+Quick start (from project root):
+- docker compose up -d
+- docker compose logs -f postgres
+
+Connect from Spring Boot:
+- spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase
+- spring.datasource.username=myuser
+- spring.datasource.password=secret
+- spring.flyway.enabled=true
 
 ### Testcontainers support
 
@@ -185,3 +195,30 @@ How to enable migrations locally with PostgreSQL (example):
 Notes:
 - Tests are unaffected because no DataSource is configured by default; migrations won’t run unless you add the datasource and Flyway dependency.
 - See the Flyway docs for naming/versioning conventions.
+
+
+
+## Sharing code among services
+
+In this monorepo, the recommended way to share code is to extract it into dedicated library modules under libs/ and have services depend on those libraries. Do not create compile‑time dependencies between microservices themselves.
+
+- Create a library module (example already included): libs/common-lib
+- Keep shared code service‑agnostic (e.g., common DTOs, validation, utilities, error models)
+- Avoid placing service‑specific domain logic in shared libs
+- Prefer small, focused libraries over one giant shared module
+
+How to depend on a shared library from a service (example for common-lib):
+
+```
+<!-- In services/<service>/pom.xml -->
+<dependency>
+  <groupId>com.pkswoodhouse</groupId>
+  <artifactId>common-lib</artifactId>
+  <version>${project.version}</version>
+</dependency>
+```
+
+Notes:
+- Version alignment: since all modules share the same parent version, ${project.version} keeps everything in sync.
+- Testing: each library module should include its own unit tests. Services using the library should have integration tests covering the combined behavior.
+- Independence: never add a dependency from one service module to another service module. Only depend on shared libraries under libs/.
