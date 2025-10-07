@@ -153,3 +153,35 @@ You can add this badge to a `README.md` to show CI status:
 ```
 [![CI](https://github.com/YOUR-ACCOUNT/PenCommerce/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR-ACCOUNT/PenCommerce/actions/workflows/ci.yml)
 ```
+
+
+## Database & Flyway migrations
+
+Each microservice now includes an initial Flyway SQL migration under:
+- src/main/resources/db/migration/V1__init.sql
+
+These migrations define a minimal, Postgres‑compatible starting schema for each bounded context:
+- catalog-service: product table and index
+- order-service: orders and order_item tables (with FK)
+- customer-service: customer table
+- inventory-service: inventory table (unique by product)
+- invoice-payment-service: invoice and payment tables (with FK)
+
+How to enable migrations locally with PostgreSQL (example):
+
+1) Start infra with Docker Compose (from project root):
+   - docker compose up -d
+
+2) Configure a service to use the database (application.properties):
+   - spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase
+   - spring.datasource.username=myuser
+   - spring.datasource.password=secret
+   - spring.flyway.enabled=true
+
+3) Optionally add dependencies in the service POM when you’re ready to run migrations at startup:
+   - org.flywaydb:flyway-core
+   - org.postgresql:postgresql
+
+Notes:
+- Tests are unaffected because no DataSource is configured by default; migrations won’t run unless you add the datasource and Flyway dependency.
+- See the Flyway docs for naming/versioning conventions.
