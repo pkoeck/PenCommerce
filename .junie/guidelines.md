@@ -7,7 +7,7 @@ Project structure:
 - Microservices under services/:
   - services/catalog-service
   - services/order-service
-  - services/user-service
+  - services/customer-service
   - services/inventory-service
   - services/invoice-payment-service
 - Infra compose file: compose.yaml (PostgreSQL, Pulsar)
@@ -18,13 +18,13 @@ Build instructions (Windows PowerShell):
 - Build/test a single service:
   - Catalog:              ./mvnw -q -pl services/catalog-service -am test
   - Order:                ./mvnw -q -pl services/order-service -am test
-  - User:                 ./mvnw -q -pl services/user-service -am test
+  - Customer:             ./mvnw -q -pl services/customer-service -am test
   - Inventory:            ./mvnw -q -pl services/inventory-service -am test
   - Invoice Payment:      ./mvnw -q -pl services/invoice-payment-service -am test
 - Run a single service locally:
   - Catalog (port 8081):          ./mvnw -q -pl services/catalog-service -am spring-boot:run
   - Order (port 8082):            ./mvnw -q -pl services/order-service -am spring-boot:run
-  - User (port 8083):             ./mvnw -q -pl services/user-service -am spring-boot:run
+  - Customer (port 8083):         ./mvnw -q -pl services/customer-service -am spring-boot:run
   - Inventory (port 8084):        ./mvnw -q -pl services/inventory-service -am spring-boot:run
   - Invoice Payment (port 8085):  ./mvnw -q -pl services/invoice-payment-service -am spring-boot:run
 

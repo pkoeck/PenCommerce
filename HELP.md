@@ -73,7 +73,7 @@ Structure:
 - Services:
   - services/catalog-service
   - services/order-service
-  - services/user-service
+  - services/customer-service
   - services/inventory-service
   - services/invoice-payment-service
 
@@ -83,14 +83,14 @@ Build everything:
 Build and test a single service:
 - Catalog Service:          ./mvnw -q -pl services/catalog-service -am test
 - Order Service:            ./mvnw -q -pl services/order-service -am test
-- User Service:             ./mvnw -q -pl services/user-service -am test
+- Customer Service:         ./mvnw -q -pl services/customer-service -am test
 - Inventory Service:        ./mvnw -q -pl services/inventory-service -am test
 - Invoice Payment Service:  ./mvnw -q -pl services/invoice-payment-service -am test
 
 Run locally:
 - Catalog Service (port 8081):          ./mvnw -q -pl services/catalog-service -am spring-boot:run
 - Order Service (port 8082):            ./mvnw -q -pl services/order-service -am spring-boot:run
-- User Service (port 8083):             ./mvnw -q -pl services/user-service -am spring-boot:run
+- Customer Service (port 8083):         ./mvnw -q -pl services/customer-service -am spring-boot:run
 - Inventory Service (port 8084):        ./mvnw -q -pl services/inventory-service -am spring-boot:run
 - Invoice Payment Service (port 8085):  ./mvnw -q -pl services/invoice-payment-service -am spring-boot:run
 
@@ -98,7 +98,7 @@ Container images:
 - Each service includes the Spring Boot Maven Plugin. You can build an OCI image per service:
   - Catalog:               ./mvnw -q -pl services/catalog-service -am spring-boot:build-image
   - Order:                 ./mvnw -q -pl services/order-service -am spring-boot:build-image
-  - User:                  ./mvnw -q -pl services/user-service -am spring-boot:build-image
+  - Customer:              ./mvnw -q -pl services/customer-service -am spring-boot:build-image
   - Inventory:             ./mvnw -q -pl services/inventory-service -am spring-boot:build-image
   - Invoice Payment:       ./mvnw -q -pl services/invoice-payment-service -am spring-boot:build-image
 
