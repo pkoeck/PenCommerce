@@ -1,0 +1,25 @@
+# Production profile: per-database configuration
+# Activate with: -Dspring.profiles.active=prod
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/orderdb}
+    username: ${DB_USERNAME:myuser}
+    password: ${DB_PASSWORD:secret}
+    hikari:
+      maximum-pool-size: 20
+  autoconfigure:
+    exclude: []
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  jooq:
+    sql-dialect: POSTGRES
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml

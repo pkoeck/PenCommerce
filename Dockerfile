@@ -12,7 +12,7 @@ LABEL org.opencontainers.image.title="PenCommerce Local Postgres" \
       org.opencontainers.image.licenses="MIT"
 
 # Default credentials for local usage (override at runtime as needed)
-ENV POSTGRES_DB=mydatabase \
+ENV POSTGRES_DB=pencommerce \
     POSTGRES_USER=myuser \
     POSTGRES_PASSWORD=secret
 

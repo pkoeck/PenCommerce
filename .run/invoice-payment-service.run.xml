@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration name="invoice-payment-service" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="invoice-payment-service" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.pkswoodhouse.pencommerce.invoicepayment.InvoicePaymentServiceApplication" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/services/invoice-payment-service" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

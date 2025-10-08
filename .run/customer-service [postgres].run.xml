@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration name="customer-service [postgres]" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="customer-service" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.pkswoodhouse.pencommerce.customer.CustomerServiceApplication" />
+    <option name="ACTIVE_PROFILES" value="postgres" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/services/customer-service" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

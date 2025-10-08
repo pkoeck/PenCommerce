@@ -15,7 +15,7 @@ For further reference, please consider the following sections:
 * [Spring Data JPA](https://docs.spring.io/spring-boot/3.5.6/reference/data/sql.html#data.sql.jpa-and-spring-data)
 * [Spring Boot DevTools](https://docs.spring.io/spring-boot/3.5.6/reference/using/devtools.html)
 * [Docker Compose Support](https://docs.spring.io/spring-boot/3.5.6/reference/features/dev-services.html#features.dev-services.docker-compose)
-* [Flyway Migration](https://docs.spring.io/spring-boot/3.5.6/how-to/data-initialization.html#howto.data-initialization.migration-tool.flyway)
+* [Liquibase Migration](https://docs.spring.io/spring-boot/3.5.6/how-to/data-initialization.html#howto.data-initialization.migration-tool.liquibase)
 * [Spring Modulith](https://docs.spring.io/spring-modulith/reference/)
 * [Spring for Apache Pulsar](https://docs.spring.io/spring-boot/3.5.6/reference/messaging/pulsar.html)
 * [Testcontainers](https://java.testcontainers.org/)
@@ -51,7 +51,19 @@ Connect from Spring Boot:
 - spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase
 - spring.datasource.username=myuser
 - spring.datasource.password=secret
-- spring.flyway.enabled=true
+- spring.liquibase.enabled=true
+
+Database initialization and creating the 'pencommerce' DB:
+- The postgres service now mounts init scripts from ./docker/initdb into /docker-entrypoint-initdb.d.
+- On the first run (new volume), an init script will create a second database named pencommerce owned by myuser, in addition to the default database (mydatabase).
+- This allows services that point to jdbc:postgresql://localhost:5432/pencommerce to connect without error, while services still using mydatabase continue to work.
+- If your Postgres data volume was initialized before this change, the init scripts will not re-run automatically. To recreate from scratch (DEV ONLY):
+  - docker compose down -v
+  - docker compose up -d
+
+Typical local URLs:
+- pencommerce DB: jdbc:postgresql://localhost:5432/pencommerce
+- mydatabase DB:  jdbc:postgresql://localhost:5432/mydatabase
 
 ### Testcontainers support
 
@@ -165,36 +177,35 @@ You can add this badge to a `README.md` to show CI status:
 ```
 
 
-## Database & Flyway migrations
+## Database & Liquibase migrations
 
-Each microservice now includes an initial Flyway SQL migration under:
-- src/main/resources/db/migration/V1__init.sql
+Each microservice uses Liquibase with a master changelog that includes an initial changelog file:
+- Master: src/main/resources/db/changelog/db.changelog-master.xml
+- Included initial changelog: src/main/resources/db/changelog/changelog-initial.xml
 
-These migrations define a minimal, Postgres‑compatible starting schema for each bounded context:
-- catalog-service: product table and index
-- order-service: orders and order_item tables (with FK)
-- customer-service: customer table
-- inventory-service: inventory table (unique by product)
-- invoice-payment-service: invoice and payment tables (with FK)
+Current state:
+- catalog-service: changelog-initial.xml contains tables derived from JPA entities (products, materials, product_materials)
+- order-service, customer-service, inventory-service, invoice-payment-service: changelog-initial.xml exists as an empty skeleton (no entities yet)
 
 How to enable migrations locally with PostgreSQL (example):
 
 1) Start infra with Docker Compose (from project root):
    - docker compose up -d
 
-2) Configure a service to use the database (application.properties):
+2) Configure a service to use the database (application-postgres.properties already contains these):
    - spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase
    - spring.datasource.username=myuser
    - spring.datasource.password=secret
-   - spring.flyway.enabled=true
+   - spring.liquibase.enabled=true
+   - spring.liquibase.change-log=classpath:db/changelog/db.changelog-master.xml
 
-3) Optionally add dependencies in the service POM when you’re ready to run migrations at startup:
-   - org.flywaydb:flyway-core
+3) Dependencies in each service POM (already added):
+   - org.liquibase:liquibase-core
    - org.postgresql:postgresql
 
 Notes:
-- Tests are unaffected because no DataSource is configured by default; migrations won’t run unless you add the datasource and Flyway dependency.
-- See the Flyway docs for naming/versioning conventions.
+- Tests are unaffected because no DataSource is configured by default; migrations won’t run unless you enable the postgres profile (see application-postgres.properties).
+- We’re following the “Option C” approach: generate/author initial changelogs from entities. As more entities are added, create new Liquibase changesets to evolve the schema.
 
 
 
@@ -227,12 +238,12 @@ Notes:
 
 ## Using Spring Data JPA with jOOQ (per service)
 
-All microservices are pre-wired to use Spring Data JPA and jOOQ against PostgreSQL, with Flyway migrations.
+All microservices are pre-wired to use Spring Data JPA and jOOQ against PostgreSQL, with Liquibase migrations.
 
 What’s included in each service:
-- Dependencies: spring-boot-starter-data-jpa, org.jooq:jooq, org.postgresql:postgresql (runtime), flyway-core
+- Dependencies: spring-boot-starter-data-jpa, org.jooq:jooq, org.postgresql:postgresql (runtime), liquibase-core
 - Default profile (no DB): database auto-configurations are excluded by default so tests and boot run without a database
-- Postgres profile: application-postgres.properties enables DataSource, JPA, jOOQ (dialect=POSTGRES), and Flyway
+- Postgres profile: application-postgres.properties enables DataSource, JPA, jOOQ (dialect=POSTGRES), and Liquibase
 
 How to run locally:
 1) Start infra
@@ -248,10 +259,93 @@ Connection settings (shared by all services via application-postgres.properties)
 - spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase
 - spring.datasource.username=myuser
 - spring.datasource.password=secret
-- spring.flyway.enabled=true
+- spring.liquibase.enabled=true
 - spring.jooq.sql-dialect=POSTGRES
 
 Notes:
 - Default behavior (no profile): DB auto-config is excluded to keep tests/boot fast and isolated. Use the postgres profile when you want DB access.
-- Flyway migrations live under src/main/resources/db/migration and run when the postgres profile is active.
+- Liquibase changelog lives under src/main/resources/db/changelog and runs when the postgres profile is active (db.changelog-master.xml includes changelog-initial.xml).
 - Transactions are shared across JPA and jOOQ when using the same DataSource and @Transactional boundaries.
+
+
+
+## IntelliJ Services tool window: shared Spring Boot run configurations
+
+If the Services tool window only shows Docker/Kubernetes and not your microservices, use the shared run configurations we committed under .run/.
+
+What we added:
+- Shared Spring Boot Run/Debug configurations for each service:
+  - catalog-service, order-service, customer-service, inventory-service, invoice-payment-service
+  - Each also has a [postgres] variant that runs with -Dspring.profiles.active=postgres
+
+How to use in IntelliJ IDEA:
+1) Import the project via the root pom.xml (File > New > Project from Existing Sources > Maven).
+2) Ensure the Spring Boot plugin is enabled (Settings > Plugins > Spring > Spring Boot).
+3) Show the Services tool window (View > Tool Windows > Services).
+4) Enable showing run configs in Services (Settings > Advanced Settings > Run/Debug > "Show run configurations in Services tool window").
+5) Pick a config from the Run/Debug dropdown (top-right) and click Run. It will appear in Services automatically; you can pin it.
+6) For database-backed runs, start infra first: docker compose up -d, then run the [postgres] configuration.
+
+Notes:
+- Default configurations run without any DB profile (fast startup). The [postgres] ones use application-postgres.properties.
+- You can duplicate/modify these shared configs directly in .run/ if you need custom ports or JVM args.
+
+
+
+## Data isolation policy: dev per-schema, prod per-database
+
+We follow a clear isolation strategy across environments:
+
+- Development/local (postgres profile): Each service uses its own PostgreSQL schema in a single database (mydatabase).
+  - Schemas per service:
+    - catalog-service → catalog
+    - order-service → orders
+    - customer-service → customers
+    - inventory-service → inventory
+    - invoice-payment-service → invoice_payment
+  - Configuration: set via application-postgres.properties
+    - spring.jpa.properties.hibernate.default_schema=<service_schema>
+    - spring.liquibase.default-schema=<service_schema>
+  - Schema creation: Each service’s Liquibase changelog-initial.xml includes a changeSet that runs:
+    - CREATE SCHEMA IF NOT EXISTS <service_schema>;
+
+How to run locally with per-schema isolation:
+1) Start infra: docker compose up -d
+2) Run a service with postgres profile (examples):
+   - Catalog:              ./mvnw -q -pl services/catalog-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+   - Order:                ./mvnw -q -pl services/order-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+   - Customer:             ./mvnw -q -pl services/customer-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+   - Inventory:            ./mvnw -q -pl services/inventory-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+   - Invoice Payment:      ./mvnw -q -pl services/invoice-payment-service -am spring-boot:run -Dspring-boot.run.profiles=postgres
+
+Notes:
+- All services connect to jdbc:postgresql://localhost:5432/mydatabase with shared credentials from compose.yaml.
+- Liquibase applies changes only within the service’s schema to keep data isolated during development.
+
+- Production (prod profile): Each service uses its own database for stronger isolation.
+  - Databases per service (defaults; adjust per environment):
+    - catalog-service → catalogdb
+    - order-service → orderdb
+    - customer-service → customerdb
+    - inventory-service → inventorydb
+    - invoice-payment-service → invoicedb
+  - Configuration files: application-prod.properties in each service
+    - spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/<service_db>}
+    - spring.datasource.username=${DB_USERNAME:myuser}
+    - spring.datasource.password=${DB_PASSWORD:secret}
+    - spring.liquibase.enabled=true
+    - No default schema is set; Liquibase and JPA use the database’s default schema (typically public).
+
+How to run with prod profile (example):
+- Catalog: ./mvnw -q -pl services/catalog-service -am spring-boot:run -Dspring-boot.run.profiles=prod
+
+Creating databases for production-like environments (run once as an admin):
+- CREATE DATABASE catalogdb;
+- CREATE DATABASE orderdb;
+- CREATE DATABASE customerdb;
+- CREATE DATABASE inventorydb;
+- CREATE DATABASE invoicedb;
+
+Tips:
+- Do not combine postgres and prod profiles; choose one per run.
+- If you later adopt jOOQ code generation, set inputSchema to the per-service schema for dev, and point to the per-service database for prod codegen.

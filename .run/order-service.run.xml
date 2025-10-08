@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration name="order-service" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="order-service" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.pkswoodhouse.pencommerce.order.OrderServiceApplication" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/services/order-service" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration name="inventory-service [postgres]" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="inventory-service" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.pkswoodhouse.pencommerce.inventory.InventoryServiceApplication" />
+    <option name="ACTIVE_PROFILES" value="postgres" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/services/inventory-service" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,0 +1,27 @@
+# Use this profile to enable DB integrations (JPA + jOOQ + Liquibase) against local Postgres
+# Activate with: -Dspring.profiles.active=postgres
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pencommerce
+    username: myuser
+    password: secret
+    hikari:
+      maximum-pool-size: 10
+  autoconfigure:
+    exclude: []
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_schema: inventory
+  jooq:
+    sql-dialect: POSTGRES
+  liquibase:
+    enabled: true
+    default-schema: inventory
+    change-log: classpath:db/changelog/db.changelog-master.xml
