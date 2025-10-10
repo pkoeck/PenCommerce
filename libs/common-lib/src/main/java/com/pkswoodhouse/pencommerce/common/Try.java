@@ -1,5 +1,7 @@
 package com.pkswoodhouse.pencommerce.common;
 
+import java.util.function.Supplier;
+
 /**
  * {@link Try} supports two types of lambda:
  * <ul>
@@ -66,6 +68,7 @@ sealed public interface Try<T> permits Try.TryVoid, Try.TryValue {
         }
     }
 
+
     @SuppressWarnings("rawtypes")
     sealed interface TryVoid extends Try permits Success, Failure {
     }
@@ -123,7 +126,7 @@ sealed public interface Try<T> permits Try.TryVoid, Try.TryValue {
     }
 
     /**
-     * {@link Success} can be constructed as a record, but we prefer to use singletone as there is no content,
+     * {@link Success} can be constructed as a record, but we prefer to use singletons as there is no content,
      * so that Enum instance is used.
      */
     enum Success implements TryVoid {

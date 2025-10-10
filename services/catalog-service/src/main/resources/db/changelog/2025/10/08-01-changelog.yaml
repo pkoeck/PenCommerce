@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1759952998009-1
+      author: pjk
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: quantity
+                  type: DOUBLE
+            tableName: materials
+  - changeSet:
+      id: 1759952998009-2
+      author: pjk
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addNotNullConstraint:
+            columnName: quantity
+            tableName: materials
+  - changeSet:
+      id: 1759952998009-3
+      author: pjk
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - dropColumn:
+            columnName: quantity_on_hand
+            tableName: materials

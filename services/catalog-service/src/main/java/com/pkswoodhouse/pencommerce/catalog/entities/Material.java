@@ -6,9 +6,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.URL;
 
+@SuperBuilder
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -22,6 +26,7 @@ public class Material {
     @Enumerated(EnumType.STRING)
     private MaterialType materialType;
 
+    @Column(unique = true)
     @NotBlank
     @Size(max = 255)
     private String name;
@@ -43,5 +48,5 @@ public class Material {
 
     @NotNull
     @PositiveOrZero
-    private Double quantityOnHand;
+    private Double quantity;
 }

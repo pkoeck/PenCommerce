@@ -7,11 +7,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.URL;
 
 import java.util.List;
 
+@SuperBuilder
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -22,6 +26,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     @NotBlank
     @Size(max = 255)
     private String name;
@@ -41,7 +46,6 @@ public class Product {
     @Column(name = "image_uri")
     private String imageURI;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "product_materials", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "material_id"))
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductMaterial> productMaterials;
 }

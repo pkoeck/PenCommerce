@@ -1,6 +1,9 @@
 # Use this profile to enable DB integrations (JPA + jOOQ + Liquibase) against local Postgres
 # Activate with: -Dspring.profiles.active=postgres
 spring:
+  mvc:
+    problemdetails:
+      enabled: true
   datasource:
     url: jdbc:postgresql://localhost:5432/pencommerce
     username: myuser

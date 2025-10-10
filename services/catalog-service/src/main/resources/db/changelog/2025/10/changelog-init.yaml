@@ -1,0 +1,126 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1759952388380-1
+      author: pjk
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_materials
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: material_type
+                  type: VARCHAR(255)
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+              - column:
+                  name: image_uri
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: price
+                  type: DOUBLE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: material_unit_type
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: quantity_on_hand
+                  type: DOUBLE
+            tableName: materials
+  - changeSet:
+      id: 1759952388380-2
+      author: pjk
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_product_materials
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: product_id
+                  type: BIGINT
+              - column:
+                  name: material_id
+                  type: BIGINT
+              - column:
+                  name: quantity_used
+                  type: INT
+            tableName: product_materials
+  - changeSet:
+      id: 1759952388380-3
+      author: pjk
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_products
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: product_type
+                  type: VARCHAR(255)
+              - column:
+                  name: price
+                  type: DOUBLE
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+              - column:
+                  name: image_uri
+                  type: VARCHAR(255)
+            tableName: products
+  - changeSet:
+      id: 1759952388380-4
+      author: pjk
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: material_id
+            baseTableName: product_materials
+            constraintName: FK_PRODUCT_MATERIALS_ON_MATERIAL
+            referencedColumnNames: id
+            referencedTableName: materials
+  - changeSet:
+      id: 1759952388380-5
+      author: pjk
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: product_id
+            baseTableName: product_materials
+            constraintName: FK_PRODUCT_MATERIALS_ON_PRODUCT
+            referencedColumnNames: id
+            referencedTableName: products
